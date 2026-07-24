@@ -1,0 +1,934 @@
+Conversa com o Gemini
+Quero montar um aplicativo para ser disponibilizado na play store, de quais recursos preciso e quais as alternativas para obte-los? Por exemplo, hospedagem, banco de dados.
+
+Para colocar um aplicativo completo na Google Play Store, você precisa planejar tanto a infraestrutura do app (onde ele roda e salva dados) quanto os requisitos formais da Google.
+
+Abaixo estão os recursos essenciais divididos por categoria e as principais alternativas do mercado — com foco em opções que possuem bons planos gratuitos para começar (Free Tier).
+
+1. Conta de Desenvolvedor (Obrigatório)
+Para publicar qualquer app na Play Store, você precisa criar uma conta no Google Play Console.
+
+Custo: Taxa única de US$ 25 (paga via cartão de crédito internacional na criação da conta).
+
+O que exige: Verificação de identidade e cumprimento das políticas de privacidade da loja.
+
+2. Frontend (O aplicativo no celular)
+A escolha da tecnologia determina como o app será construído.
+
+Multiplataforma (Recomendado): Escreve um único código que roda em Android e iOS.
+
+Flutter (Dart): Excelente desempenho, interface nativa e mantido pelo Google.
+
+React Native (JS/TS): Ecossistema gigante, muito usado no mercado.
+
+Nativo:
+
+Kotlin (Jetpack Compose): A forma oficial e nativa de desenvolver para Android moderno.
+
+3. Backend, Banco de Dados e Hospedagem
+Aqui é onde ficam as regras de negócio, dados dos usuários e arquivos (fotos, documentos). Há duas abordagens principais:
+
+Opção A: Backend como Serviço (BaaS) — O caminho mais rápido
+Você não precisa configurar servidores, criar APIs do zero nem gerenciar banco de dados manualmente. Tudo vem integrado (Autenticação, Banco de Dados e Storage).
+
+Serviço	Tipo de Banco	Destaques	Placa de Gratuito (Free Tier)
+Firebase (Google)	NoSQL (Firestore)	Integração perfeita com ecossistema Android e notificações.	Bastante generoso para início de projeto.
+Supabase	SQL (PostgreSQL)	Alternativa open-source ao Firebase com poder do Postgres.	2 projetos ativos gratuitos (até 500 MB).
+Appwrite	NoSQL / SQL	Muito fácil de rodar localmente ou na nuvem deles.	Plano starter gratuito funcional.
+Opção B: Servidor Próprio / API Personalizada — Para controle total
+Se você já tem ou quer escrever sua própria API (em Python, Node.js, Go, etc.) e conectar a um banco relacional:
+
+Hospedagem de API (PaaS / Serverless):
+
+Render / Fly.io: Ótimos para subir contêineres Docker ou APIs sem gerenciar infraestrutura.
+
+AWS Lambda / Cloudflare Workers: Arquitetura serverless (paga apenas por execução).
+
+VPS (Hetzner, DigitalOcean, Linode): Máquina virtual dedicada (gerenciada por você) a partir de ~$4/mês.
+
+Banco de Dados Gerenciado:
+
+Neon.tech: PostgreSQL serverless com ótimo plano gratuito.
+
+MongoDB Atlas: NoSQL gerenciado com 512 MB grátis.
+
+4. Serviços Auxiliares Essenciais
+Autenticação (Login com Google, E-mail, Apple):
+
+Opções: Firebase Auth, Supabase Auth ou Clerk.
+
+Notificações Push:
+
+Opções: Firebase Cloud Messaging (FCM) (gratuito e padrão da indústria) ou OneSignal.
+
+Armazenamento de Arquivos (Fotos/Mídia):
+
+Opções: Firebase Storage, Supabase Storage ou Cloudflare R2 (não cobra taxa de transferência de dados/egress).
+
+Política de Privacidade (Obrigatório para a loja):
+
+É necessário ter um link público com a política de privacidade do app. Ferramentas gratuitas como App Privacy Policy Generator ajudam a criar o texto base.
+
+Recomendação para começar rápido (Pilha Simplificada):
+
+Para um MVP (Produto Mínimo Viável) com custo $0 de infraestrutura no início:
+
+Flutter/React Native + Firebase ou Supabase + FCM (Push).
+
+Como prefere prosseguir na montagem do seu projeto?
+
+Comparar Firebase vs Supabase em detalhes
+
+Ver o passo a passo para publicar o app no Play Console
+
+Ajuda para escolher a arquitetura do meu app específico
+
+Eu quero transformar a página html em anexo em um aplicativo que seja capaz de preencher os campos por voz. Qual seria o melhor caminho?
+
+Para transformar essa página HTML em um aplicativo capaz de preencher os campos por áudio/voz, existem duas abordagens principais. A escolha ideal depende de como você espera que o usuário fale ao preencher o formulário.
+
+Caminho 1: Reconhecimento "Campo por Campo" (Nativo do Navegador)
+Esse é o caminho mais rápido, simples e barato. Ele usa a API nativa de voz do próprio navegador (Web Speech API / SpeechRecognition).
+
+Como funciona:
+Ao lado de cada campo (input), adiciona-se um ícone de microfone. O usuário clica no microfone referente àquele campo específico e fala apenas a informação solicitada (ex: clica no microfone de Marca e fala "Empresa LTDA").
+
+Vantagens:
+Zero custo: Funciona diretamente no front-end sem depender de servidores pagos.
+
+Fácil implementação: Não precisa alterar a arquitetura do código nem criar servidores em Python/Node.
+
+Funciona no PWA: Basta transformar essa página em um PWA (Progressive Web App) ou empacotá-la usando WebView no Flutter/React Native.
+
+Exemplo de implementação no código:
+JavaScript
+// Função para iniciar a escuta em um campo específico
+function ouvirCampo(fieldId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  
+  if (!SpeechRecognition) {
+    alert("Reconhecimento de voz não suportado neste navegador.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'pt-BR';
+  recognition.interimResults = false;
+
+  recognition.onresult = function(event) {
+    const textoTranscrito = event.results[0][0].transcript;
+    document.getElementById(fieldId).value = textoTranscrito;
+  };
+
+  recognition.start();
+}
+Caminho 2: Ditado Livre Continuo com Inteligência Artificial (Recomendado para produtividade)
+Se a sua intenção é permitir que o usuário grave um único áudio contínuo citando vários dados de uma vez (ex: "Cadastra um produto dipirona da marca x de 500 miligramas com 10 caixas...") e o sistema extrair e preencher automaticamente cada campo, você precisará do auxílio de uma LLM.
+
+Como funciona a arquitetura:
+Captura do Áudio: O app grava o áudio do usuário (com Web MediaRecorder).
+
+Transcrição (Speech-to-Text): O áudio é enviado para um modelo de transcrição (ex: Whisper ou Google Cloud Speech-to-Text).
+
+Extração Estruturada (LLM): A transcrição é processada por um modelo de linguagem (como Gemini, Llama local ou OpenAI) usando JSON Mode / Structured Outputs.
+
+Preenchimento dos Campos: O JSON retornado preenche diretamente o estado items[currentIndex] no JavaScript do formulário.  
+HTML
+
+Exemplo do fluxo do Prompt / Schema para a LLM:
+Ao enviar a transcrição para o modelo, você define o formato de saída esperado em JSON:
+
+JSON
+{
+  "nome": "Dipirona",
+  "marca": "Medley",
+  "ativo": "Dipirona Sódica",
+  "concentracao": "500mg",
+  "quantidade": "10 caixas",
+  "forma": "Comprimido",
+  "lote": "L8923",
+  "peso": "",
+  "data": "10/2026"
+}
+Com a resposta formatada, uma simples iteração em JavaScript preenche os elementos do formulário:
+
+JavaScript
+function preencherCamposPelaIA(dadosJson) {
+  fields.forEach(f => {
+    if (dadosJson[f]) {
+      document.getElementById('f-' + f).value = dadosJson[f];
+    }
+  });
+}
+Resumo da Comparação e Recomendação
+Critério	Caminho 1: Campo por Campo (Web Speech API)	Caminho 2: Ditado Fluído + Extração com LLM
+Experiência do Usuário	Precisa clicar em cada microfone individualmente	O usuário fala tudo em um único áudio contínuo
+Custo de Infraestrutura	R$ 0,00	Baixo custo (APIs) ou R$ 0,00 (se usar LLM/Whisper local)
+Complexidade de Código	Baixa (apenas JS no próprio arquivo HTML)	Média (exige integração de API/Backend)
+Precisão em Termos Técnicos	Depende da pronúncia exata	Alta (a LLM consegue inferir contexto e corrigir termos)
+Dica: Se a meta for lançar um aplicativo mobile na Play Store baseado nessa página, empacotar a interface com um repositório como Flutter (WebView) ou transformar em PWA com TWA (Trusted Web Activity) é a alternativa mais direta mantendo todo o estilo CSS e lógica JS existentes.  
+HTML
+
+Se fosse usar a opção de preencher campo por campo no navegador, é possível usando páginas github?
+
+Sim, é perfeitamente possível! E essa é justamente uma das maiores vantagens desse caminho.
+
+Como a Web Speech API roda 100% no navegador (client-side), você não precisa de nenhum servidor backend (Node, Python, PHP) executando código.
+
+O GitHub Pages serve arquivos estáticos (HTML, CSS e JS) exatamente da forma necessária para que essa API funcione.  
+HTML
+
+⚠️ O Requisito Crucial: HTTPS
+A Web Speech API possui uma restrição de segurança rígida: ela exige uma conexão segura via HTTPS para acessar o microfone do usuário (com exceção apenas de localhost em desenvolvimento).
+
+O GitHub Pages fornece certificado SSL/HTTPS gratuitamente para todas as páginas (seu link será [https://seu-usuario.github.io/nome-do-repositorio/](https://seu-usuario.github.io/nome-do-repositorio/)), o que atende perfeitamente ao requisito.
+
+Como adaptar seu HTML para funcionar no GitHub Pages
+Basta adicionar a função de voz no seu <script> e incluir os botões de microfone na estrutura de campos do seu HTML:  
+HTML
+
+1. Código JavaScript para adicionar no seu <script>:
+JavaScript
+function ouvirCampo(fieldId) {
+  // Compatibilidade entre navegadores (Chrome, Edge, Safari)
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Seu navegador não suporta reconhecimento de voz. Tente usar o Google Chrome.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'pt-BR'; // Define o idioma para Português do Brasil
+  recognition.continuous = false; // Para de escutar assim que detectar uma pausa
+  recognition.interimResults = false;
+
+  const campo = document.getElementById(fieldId);
+  const labelOriginal = campo.placeholder;
+
+  recognition.onstart = function() {
+    campo.placeholder = "Escutando...";
+  };
+
+  recognition.onresult = function(event) {
+    const textoTranscrito = event.results[0][0].transcript;
+    // Preenche o campo e converte para maiúsculo para seguir o padrão do seu script
+    campo.value = textoTranscrito.toUpperCase(); 
+  };
+
+  recognition.onerror = function(event) {
+    console.error("Erro no reconhecimento de voz:", event.error);
+  };
+
+  recognition.onend = function() {
+    campo.placeholder = labelOriginal;
+  };
+
+  recognition.start();
+}
+2. Exemplo de como ajustar a estrutura HTML de cada campo:
+Você pode ajustar o CSS dos seus campos para incluir o botão com o ícone do microfone ao lado dos inputs:  
+HTML
+
+HTML
+<div class="field full">
+  <label for="f-nome">Nome comercial do produto</label>
+  <div style="display: flex; gap: 8px;">
+    <input id="f-nome" type="text" placeholder="Nome do produto">
+    <button type="button" onclick="ouvirCampo('f-nome')" style="background:none; border:none; cursor:pointer;">
+      🎤
+    </button>
+  </div>
+</div>
+Limitações para ficar atento
+Suporte a Navegadores: Funciona perfeitamente no Google Chrome, Microsoft Edge e Safari (iOS/macOS). O Firefox tem suporte limitado/desativado por padrão para essa API nativa.
+
+Conexão com a Internet: Embora rode no navegador, o motor do Google Chrome envia o áudio em milissegundos para os servidores de voz da Google para realizar a transcrição. Portanto, o dispositivo precisa estar conectado à internet.
+
+Publicação na Play Store via TWA: Se você subir esse site no GitHub Pages, pode usá-lo para criar o aplicativo Android usando Trusted Web Activity (TWA) via Bubblewrap. O app abrirá como um aplicativo nativo e terá acesso total ao microfone.
+
+Me passa o arquivo html completo com as alterações necessárias
+
+Seu arquivo HTML com reconhecimento de voz integrado está pronto!
+Ícone do app HTML
+index
+ HTML 
+Aberto
+
+Principais alterações e melhorias implementadas:
+Botões de Microfone Elegantes:
+
+Foi adicionado um ícone discreto de microfone (svg) ao lado de cada input e textarea.  
+HTML
+
+O layout mantem o padrão e o design minimalista original.  
+HTML
+
+Integração com a Web Speech API:
+
+Função JavaScript ouvirCampo(fieldId) utilizando SpeechRecognition em Português do Brasil (pt-BR).
+
+Suporte para Chrome, Edge, Safari e navegadores mobile modernos.
+
+Feedback Visual:
+
+Quando o botão de microfone é clicado, ele recebe a classe .listening, que ativa uma animação pulsante em vermelho para indicar visualmente que o dispositivo está escutando.
+
+O placeholder do campo temporariamente muda para "Escutando...".
+
+Tratamento Inteligente de Conteúdo:
+
+O texto capturado por voz sincroniza automaticamente com a função saveCurrentItem(), garantindo que, ao alternar entre abas/itens, o texto capturado não seja perdido.  
+HTML
++ 1
+
+No campo de Informações Adicionais (Globais) (f-obs), se já houver texto digitado, a nova gravação por voz é anexada ao final em vez de sobrescrever.  
+HTML
+
+
+
+
+O Gemini é uma IA e pode cometer erros.
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário de Descrição com Entrada por Voz</title>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f5f3;
+    --surface: #ffffff;
+    --surface2: #f1efe8;
+    --border: rgba(0,0,0,0.1);
+    --border-focus: rgba(0,0,0,0.3);
+    --text: #1a1a18;
+    --text-dim: #aaa89f;
+    --text-label: #5f5e5a;
+    --accent: #1a1a18;
+    --accent-dark: #2c2c2a;
+    --active-mic: #e63946;
+    --mono: 'Courier New', 'Consolas', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1rem 4rem;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  /* Aba/Tabs de Itens */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .tab-btn:hover {
+    background: var(--border);
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+
+  .tab-btn.add-btn {
+    background: transparent;
+    border: 1px dashed var(--border-focus);
+    color: var(--text);
+  }
+
+  .tab-btn.add-btn:hover {
+    background: var(--surface2);
+    border-color: var(--accent);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 24px 0 8px;
+    display: block;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1px;
+  }
+
+  .field {
+    background: var(--surface);
+    padding: 14px 16px 12px;
+    position: relative;
+    transition: background 0.15s;
+  }
+
+  .field:focus-within {
+    background: var(--surface2);
+    z-index: 1;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a1a18;
+    margin-bottom: 3px;
+    transition: color 0.15s;
+  }
+
+  .field:focus-within label {
+    color: var(--accent);
+  }
+
+  /* Wrapper flex para alinhar o input/textarea com o botão de microfone */
+  .input-mic-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field input,
+  .field textarea {
+    flex: 1;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    caret-color: var(--accent);
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .field textarea {
+    resize: none;
+    min-height: 64px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Estilo do botão de microfone */
+  .btn-mic {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+  }
+
+  .btn-mic:hover {
+    color: var(--accent);
+    background: rgba(0,0,0,0.05);
+  }
+
+  .btn-mic:active {
+    transform: scale(0.92);
+  }
+
+  /* Animação quando o microfone está ouvindo */
+  .btn-mic.listening {
+    color: var(--active-mic);
+    animation: pulse 1.2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .btn-extract {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px 20px;
+    background: #1a1a18;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.08s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-extract:hover { background: #2c2c2a; }
+  .btn-extract:active { transform: scale(0.99); }
+
+  .result-area {
+    display: none;
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .btn-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid rgba(212,240,74,0.25);
+    border-radius: 5px;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: background 0.12s;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-copy:hover { background: rgba(212,240,74,0.08); }
+
+  .result-text {
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    word-break: break-all;
+    background: var(--surface2);
+  }
+
+  .pipe { color: var(--accent); opacity: 0.6; }
+  .semicolon { color: var(--accent); font-weight: bold; margin: 0 4px; }
+
+  @media (max-width: 480px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .field.full { grid-column: 1; }
+    h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Detalhamento de Ocorrências</h1>
+  </header>
+
+  <!-- Área de Abas -->
+  <div class="tabs" id="tabs-container"></div>
+
+  <!-- Campos do Item (Dinâmico) -->
+  <div class="form-grid" id="item-fields">
+    <div class="field full">
+      <label for="f-nome">Nome comercial do produto</label>
+      <div class="input-mic-wrapper">
+        <input id="f-nome" type="text" placeholder="Nome do produto">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-nome')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field full">
+      <label for="f-marca">Marca ou fabricante</label>
+      <div class="input-mic-wrapper">
+        <input id="f-marca" type="text" placeholder="Ex: Empresa LTDA">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-marca')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-ativo">Princípio ativo ou substância</label>
+      <div class="input-mic-wrapper">
+        <input id="f-ativo" type="text" placeholder="Ex: Diclofenaco sódico">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-ativo')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-concentracao">Concentração / especificação</label>
+      <div class="input-mic-wrapper">
+        <input id="f-concentracao" type="text" placeholder="Ex: 300mg ou aço inox estéril">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-concentracao')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-quantidade">Quantidade e Unidade</label>
+      <div class="input-mic-wrapper">
+        <input id="f-quantidade" type="text" placeholder="Ex: 5 caixas ou 10 unidades">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-quantidade')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-forma">Forma de apresentação</label>
+      <div class="input-mic-wrapper">
+        <input id="f-forma" type="text" placeholder="Ex: solução ou creme">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-forma')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-lote">Nº lote / serial / partnumber</label>
+      <div class="input-mic-wrapper">
+        <input id="f-lote" type="text" placeholder="Ex: 1254tg">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-lote')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-peso">Peso total bruto</label>
+      <div class="input-mic-wrapper">
+        <input id="f-peso" type="text" placeholder="Ex: 500 g">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-peso')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field full">
+      <label for="f-data">Prazo de validade</label>
+      <div class="input-mic-wrapper">
+        <input id="f-data" type="text" placeholder="Ex: 30/06/2026">
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-data')" title="Preencher por voz">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Campo Global -->
+  <span class="section-label">Informações Adicionais (Globais)</span>
+  <div class="form-grid">
+    <div class="field full">
+      <label for="f-obs">Informações adicionais sobre a ocorrência: Indicar se foi apresentada prescrição, relatório médico ou outro documento relevante; conservação da embalagem, indícios de fraude, etc.</label>
+      <div class="input-mic-wrapper" style="align-items: flex-start;">
+        <textarea id="f-obs" placeholder="Informações adicionais..."></textarea>
+        <button type="button" class="btn-mic" onclick="ouvirCampo('f-obs')" title="Preencher por voz" style="margin-top: 4px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-extract" onclick="extrair()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Gerar texto
+  </button>
+
+  <div id="result-area" class="result-area">
+    <div class="result-header">
+      <span class="result-label">Resultado</span>
+      <button class="btn-copy" id="btn-copy" onclick="copiar()">Copiar</button>
+    </div>
+    <div id="result-text" class="result-text"></div>
+  </div>
+</div>
+
+<script>
+  // Estado da aplicação
+  var items = [];
+  var currentIndex = 0;
+  
+  // Campos pertencentes a cada item
+  var fields = [
+    'nome', 'marca', 'ativo', 'concentracao', 
+    'quantidade', 'forma', 'lote', 'peso', 'data'
+  ];
+
+  // Inicialização
+  window.onload = function() {
+    items.push(createEmptyItem());
+    renderTabs();
+    loadCurrentItem();
+  };
+
+  function createEmptyItem() {
+    var obj = {};
+    fields.forEach(function(f) { obj[f] = ''; });
+    return obj;
+  }
+
+  function renderTabs() {
+    var container = document.getElementById('tabs-container');
+    container.innerHTML = '';
+
+    // Botões dos Itens
+    items.forEach(function(item, index) {
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn' + (index === currentIndex ? ' active' : '');
+      btn.innerText = 'Item ' + (index + 1);
+      btn.onclick = function() { switchItem(index); };
+      container.appendChild(btn);
+    });
+
+    // Botão + Novo Item
+    var addBtn = document.createElement('button');
+    addBtn.className = 'tab-btn add-btn';
+    addBtn.innerText = '+ Novo Item';
+    addBtn.onclick = addNewItem;
+    container.appendChild(addBtn);
+  }
+
+  function saveCurrentItem() {
+    fields.forEach(function(f) {
+      items[currentIndex][f] = document.getElementById('f-' + f).value;
+    });
+  }
+
+  function loadCurrentItem() {
+    fields.forEach(function(f) {
+      document.getElementById('f-' + f).value = items[currentIndex][f];
+    });
+  }
+
+  function switchItem(index) {
+    saveCurrentItem();
+    currentIndex = index;
+    loadCurrentItem();
+    renderTabs();
+  }
+
+  function addNewItem() {
+    saveCurrentItem();
+    items.push(createEmptyItem());
+    currentIndex = items.length - 1; // Seleciona o novo item criado
+    loadCurrentItem();
+    renderTabs();
+  }
+
+  function extrair() {
+    // Salva qualquer alteração pendente no item atual
+    saveCurrentItem();
+
+    // Arrays para montar texto e HTML
+    var itemStrings = items.map(function(item) {
+      return fields.map(function(f) { 
+        return item[f].trim().toUpperCase(); 
+      });
+    });
+
+    // Montagem Texto Puro
+    var textoItems = itemStrings.map(function(vals) {
+      return vals.join('|');
+    }).join(';');
+
+    // Montagem HTML (com pipes coloridos)
+    var htmlItems = itemStrings.map(function(vals) {
+      return vals.map(function(v) {
+        return '<span>' + escHtml(v) + '</span>';
+      }).join('<span class="pipe">|</span>');
+    }).join('<span class="semicolon">;</span><br>');
+
+    // Informações Adicionais (Globais)
+    var obs = document.getElementById('f-obs').value.trim().toUpperCase();
+
+    var textoFinal = textoItems;
+    var htmlFinal = htmlItems;
+
+    if (obs) {
+      textoFinal += '\n\n' + obs;
+      htmlFinal += '<br><br><span>' + escHtml(obs).replace(/\n/g, '<br>') + '</span>';
+    }
+
+    // Exibição
+    document.getElementById('result-text').innerHTML = htmlFinal;
+    document.getElementById('result-text').style.textTransform = 'uppercase';
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('btn-copy').textContent = 'Copiar';
+    document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Guarda texto puro para copiar
+    document.getElementById('result-area').dataset.raw = textoFinal;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function copiar() {
+    var texto = document.getElementById('result-area').dataset.raw || '';
+    navigator.clipboard.writeText(texto).then(function() {
+      var btn = document.getElementById('btn-copy');
+      btn.textContent = 'Copiado!';
+      setTimeout(function() { btn.textContent = 'Copiar'; }, 1500);
+    });
+  }
+
+  // ==========================================
+  // RECONHECIMENTO DE VOZ (Web Speech API)
+  // ==========================================
+  var currentRecognition = null;
+
+  function ouvirCampo(fieldId) {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Seu navegador não suporta reconhecimento de voz. Recomendamos usar o Google Chrome ou Microsoft Edge.");
+      return;
+    }
+
+    // Se já houver uma escuta ativa, interrompe
+    if (currentRecognition) {
+      currentRecognition.stop();
+    }
+
+    var recognition = new SpeechRecognition();
+    currentRecognition = recognition;
+
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    var inputEl = document.getElementById(fieldId);
+    var micBtn = inputEl.nextElementSibling;
+    var originalPlaceholder = inputEl.placeholder;
+
+    recognition.onstart = function() {
+      inputEl.placeholder = "Escutando...";
+      if (micBtn) micBtn.classList.add('listening');
+    };
+
+    recognition.onresult = function(event) {
+      var textoTranscrito = event.results[0][0].transcript;
+      
+      // Trata vírgulas/pontos e ajusta o texto
+      var textoFormatado = textoTranscrito.trim();
+      
+      // Se for o campo de obs, concatena se já tiver algo; se for outro campo, substitui/preenche
+      if (fieldId === 'f-obs' && inputEl.value.trim() !== '') {
+        inputEl.value += ' ' + textoFormatado;
+      } else {
+        inputEl.value = textoFormatado;
+      }
+
+      // Atualiza o estado no array JavaScript
+      saveCurrentItem();
+    };
+
+    recognition.onerror = function(event) {
+      console.error("Erro no reconhecimento de voz: ", event.error);
+      if (event.error === 'not-allowed') {
+        alert("Permissão de microfone negada. Por favor, permita o acesso ao microfone nas configurações do seu navegador.");
+      }
+    };
+
+    recognition.onend = function() {
+      inputEl.placeholder = originalPlaceholder;
+      if (micBtn) micBtn.classList.remove('listening');
+      currentRecognition = null;
+    };
+
+    recognition.start();
+  }
+</script>
+</body>
+</html>
